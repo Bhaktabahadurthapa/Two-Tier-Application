@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Management</title>
+    <style>
+        body { font-family: Arial; margin: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin: 20px 0; }
+        button { padding: 10px 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Management System</h1>
+        
+        <div class="form-group">
+            <h2>Add User</h2>
+            <input type="text" id="name" placeholder="Name">
+            <input type="email" id="email" placeholder="Email">
+            <button onclick="addUser()">Add User</button>
+        </div>
+
+        <div class="users-list">
+            <h2>Users</h2>
+            <div id="usersList"></div>
+        </div>
+    </div>
+
+    <script>
+        async function addUser() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            
+            try {
+                const response = await fetch('http://127.0.0.1:5001/api/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email })
+                });
+                
+                if (response.ok) {
+                    loadUsers();
+                    document.getElementById('name').value = '';
+                    document.getElementById('email').value = '';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await fetch('http://127.0.0.1:5001/api/users');
+                const data = await response.json();
+                const usersList = document.getElementById('usersList');
+                
+                usersList.innerHTML = data.users.map(user => `
+                    <div>
+                        <p><strong>Name:</strong> ${user.name}</p>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                        <hr>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        loadUsers();
+    </script>
+</body>
+</html>
